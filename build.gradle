@@ -1,22 +1,24 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    
+
     repositories {
+
+        //解决butterknife新版本跟Androidstudio新版本冲突编译失败问题
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         google()
         jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath "com.jakewharton:butterknife-gradle-plugin:$butterknife"
     }
 }
 
 allprojects {
     repositories {
+        //解决butterknife新版本跟Androidstudio新版本冲突编译失败问题
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
         google()
         jcenter()
     }
