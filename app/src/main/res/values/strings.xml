@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">AiYue</string>
-
     <string name="ignore_ad">跳过广告</string>
+
+    <string name="news">新闻</string>
+    <string name="video">视频</string>
+    <string name="jian_dan">煎蛋</string>
+    <string name="my">我的</string>
 </resources>

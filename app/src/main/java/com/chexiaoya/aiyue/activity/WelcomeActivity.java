@@ -92,13 +92,12 @@ public class WelcomeActivity extends BaseActivity {
 
             @Override
             public void onFinish() {
-                // jumpToMain();
+                 jumpToMain();
             }
         };
         countDownTimer.start();
     }
-
-
+    
     /**
      * 跳转到主页面
      */

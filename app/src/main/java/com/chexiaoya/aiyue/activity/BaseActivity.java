@@ -5,19 +5,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 
 import butterknife.ButterKnife;
 
 public abstract class BaseActivity extends AppCompatActivity {
-
+    private View mRootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setImmersiveMode();
-        setContentView(getLayout());
+        mRootView = LayoutInflater.from(this).inflate(getLayout(), null, false);
+        this.setContentView(mRootView);
         ButterKnife.bind(this);
         initData();
     }
@@ -34,7 +36,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 int option = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
                 decorView.setSystemUiVisibility(option);
                 window.setStatusBarColor(Color.TRANSPARENT);
                 window.setNavigationBarColor(Color.TRANSPARENT);
@@ -50,4 +53,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public abstract void initData();
 
+    public View getRootView() {
+        return mRootView;
+    }
 }
