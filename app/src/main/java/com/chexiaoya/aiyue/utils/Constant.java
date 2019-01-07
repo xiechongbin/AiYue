@@ -9,7 +9,7 @@ public class Constant {
     /**
      * 广告页面总时长
      */
-    public static final long AD_PAGE_TOTAL_TIME = 6 * 1000;
+    public static final long AD_PAGE_TOTAL_TIME = 2 * 1000;
 
     /**
      * 广告页面倒计时间隔

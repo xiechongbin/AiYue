@@ -1,9 +1,10 @@
-package com.chexiaoya.aiyue;
+package com.chexiaoya.aiyue.activity;
 
+import android.support.v7.app.ActionBar;
 import android.view.View;
 import android.widget.Toast;
 
-import com.chexiaoya.aiyue.activity.BaseActivity;
+import com.chexiaoya.aiyue.R;
 import com.chexiaoya.aiyue.interfaces.OnTabClickListener;
 import com.chexiaoya.aiyue.view.BottomBar;
 import com.chexiaoya.aiyue.view.BottomBarTabView;
@@ -33,6 +34,7 @@ public class MainActivity extends BaseActivity implements OnTabClickListener {
     @Override
     public void initData() {
         initBottomBar();
+        addCustomActionBar();
     }
 
     @Override
@@ -50,5 +52,15 @@ public class MainActivity extends BaseActivity implements OnTabClickListener {
                 .addTab(new BottomBarTabView(this, R.drawable.ic_my, my).setViewId(R.id.tab_fourth));
         bottomBar.setAnimation(true);
         bottomBar.addOnTabClickListener(this);
+    }
+
+    /**
+     * 自定义标题栏
+     */
+    public void addCustomActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null && !actionBar.isShowing()) {
+            actionBar.show();//隐藏标题栏
+        }
     }
 }

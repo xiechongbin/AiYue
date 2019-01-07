@@ -1,6 +1,5 @@
 package com.chexiaoya.aiyue.activity;
 
-import android.content.Intent;
 import android.os.CountDownTimer;
 import android.support.constraint.ConstraintLayout;
 import android.view.View;
@@ -8,11 +7,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.chexiaoya.aiyue.MainActivity;
 import com.chexiaoya.aiyue.R;
 import com.chexiaoya.aiyue.utils.AndroidDeviceUtils;
 import com.chexiaoya.aiyue.utils.Constant;
 import com.chexiaoya.aiyue.utils.GlideUtils;
+import com.chexiaoya.aiyue.utils.LaunchUtils;
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -92,18 +91,17 @@ public class WelcomeActivity extends BaseActivity {
 
             @Override
             public void onFinish() {
-                 jumpToMain();
+                jumpToMain();
             }
         };
         countDownTimer.start();
     }
-    
+
     /**
      * 跳转到主页面
      */
     public void jumpToMain() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        LaunchUtils.launchMainActivity(this);
         this.finish();
     }
 

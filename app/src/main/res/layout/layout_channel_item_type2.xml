@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/tv_recommend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/recommend"
+            android:textColor="@color/color_252525"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/tv_click_to_add_channel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/tv_recommend"
+            android:text="@string/add_channel"
+            android:textColor="@color/color_818181"
+            android:textSize="12sp"/>
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>

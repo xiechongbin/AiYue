@@ -6,4 +6,10 @@
     <string name="video">视频</string>
     <string name="jian_dan">煎蛋</string>
     <string name="my">我的</string>
+    <string name="my_channel">我的频道</string>
+    <string name="click_to_channel">点击进入频道</string>
+    <string name="finish">完成</string>
+    <string name="edit">编辑</string>
+    <string name="recommend">频道推荐</string>
+    <string name="add_channel">点击添加频道</string>
 </resources>
