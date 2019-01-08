@@ -1,9 +1,9 @@
 package com.chexiaoya.aiyue.utils;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 
 /**
  * android 相关参数获取工具类
@@ -71,16 +71,16 @@ public class AndroidDeviceUtils {
      * 获取屏幕宽
      */
     public static int getScreenWidth(Context context) {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        return wm.getDefaultDisplay().getWidth();
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return displayMetrics.widthPixels;
     }
 
     /**
      * 获取屏幕高
      */
     public static int getScreenHeight(Context context) {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        return wm.getDefaultDisplay().getHeight();
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return displayMetrics.heightPixels;
     }
 
 

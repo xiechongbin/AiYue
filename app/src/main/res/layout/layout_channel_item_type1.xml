@@ -2,7 +2,7 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -12,9 +12,10 @@
             android:id="@+id/tv_my_channel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:text="@string/my_channel"
             android:textColor="@color/color_252525"
-            android:textSize="18sp"/>
+            android:textSize="15sp"/>
 
         <TextView
             android:id="@+id/tv_click_to_channel"
@@ -29,11 +30,14 @@
 
         <TextView
             android:id="@+id/tv_edit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="62dp"
+            android:layout_height="30dp"
             android:layout_alignParentRight="true"
+            android:background="@drawable/shape_edit"
+            android:gravity="center"
             android:text="@string/edit"
-            android:textColor="@color/color_ff3d6f"/>
+            android:textColor="@color/color_ff3d6f"
+            android:textSize="15sp"/>
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

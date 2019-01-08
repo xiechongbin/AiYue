@@ -1,15 +1,20 @@
 package com.chexiaoya.aiyue.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chexiaoya.aiyue.R;
 import com.chexiaoya.aiyue.bean.Channel;
+import com.chexiaoya.aiyue.utils.AndroidDeviceUtils;
 
 import java.util.List;
 
@@ -18,13 +23,16 @@ import java.util.List;
  * Created by xcb on 2019/1/7.
  */
 public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
+    public static final int ROW_COUNT = 4;
     private List<Channel> channelList;
     private Context context;
+    private int channelItemWidth;
 
     public ChannelManagerAdapter(List<Channel> channelList, Context context) {
         this.channelList = channelList;
         this.context = context;
+        channelItemWidth = getItemWidth();
+        Log.d("width", channelItemWidth + "");
     }
 
     @Override
@@ -34,12 +42,17 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             return new ViewHolder1(view);
         } else if (viewType == Channel.TYPE_MY_CHANNEL) {
             View view = LayoutInflater.from(context).inflate(R.layout.layout_channel_item, parent, false);
+            view.setBackgroundColor(Color.BLACK);
+            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(channelItemWidth, channelItemWidth / 2);
+            view.setLayoutParams(layout);
             return new ViewHolder3(view);
         } else if (viewType == Channel.TYPE_ADD_CHANNEL_TITLE) {
             View view = LayoutInflater.from(context).inflate(R.layout.layout_channel_item_type2, parent, false);
             return new ViewHolder2(view);
         } else if (viewType == Channel.TYPE_ADD_CHANNEL) {
             View view = LayoutInflater.from(context).inflate(R.layout.layout_channel_item_type3, parent, false);
+            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(channelItemWidth, channelItemWidth / 2);
+            view.setLayoutParams(layout);
             return new ViewHolder4(view);
         }
         return null;
@@ -75,7 +88,7 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             });
         } else if (holder instanceof ViewHolder4) {
             ViewHolder4 holder4 = (ViewHolder4) holder;
-            holder4.tv_recommend_channel.setText(channelList.get(position).getChannelName());
+            holder4.tv_recommend_channel.setText("+ " + channelList.get(position).getChannelName());
             holder4.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -84,6 +97,7 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             });
         }
     }
+
 
     @Override
     public int getItemCount() {
@@ -101,6 +115,33 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         return 0;
     }
 
+    /**
+     * 网格布局中的某个item设置为独占一行
+     */
+    public GridLayoutManager setSpanCount(final GridLayoutManager gridLayoutManager) {
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int pos) {
+                int type = getItemViewType(pos);
+                if (type == Channel.TYPE_ADD_CHANNEL_TITLE || type == Channel.TYPE_MY_CHANNEL_TITLE) {
+                    return 4;
+                } else {
+                    return 1;
+                }
+            }
+        });
+        return gridLayoutManager;
+    }
+
+
+    /**
+     * 获取每个item的宽度 高度设置为item的一半
+     */
+    private int getItemWidth() {
+        int screenWidth = AndroidDeviceUtils.getScreenWidth(context);
+        int dividerWidth = AndroidDeviceUtils.dip2px(context, 14);
+        return (screenWidth - dividerWidth * (ROW_COUNT + 1)) / 4;
+    }
 
     /**
      * 我的频道 title
@@ -137,7 +178,7 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public ViewHolder3(View itemView) {
             super(itemView);
             iv_delete_item = itemView.findViewById(R.id.iv_delete_item);
-            tv_my_channel = itemView.findViewById(R.id.tv_my_channel);
+            tv_my_channel = itemView.findViewById(R.id.tv_channel);
             view = itemView;
         }
     }

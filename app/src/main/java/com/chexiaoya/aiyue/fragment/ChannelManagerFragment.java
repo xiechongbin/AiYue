@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.chexiaoya.aiyue.R;
+import com.chexiaoya.aiyue.adapter.ChannelManagerAdapter;
+import com.chexiaoya.aiyue.adapter.RecyclerViewItemDecoration;
 import com.chexiaoya.aiyue.bean.Channel;
 
 import java.util.ArrayList;
@@ -25,8 +27,6 @@ import butterknife.Unbinder;
  * Created by xcb on 2018/12/29.
  */
 public class ChannelManagerFragment extends BaseFragment {
-    private static final int ROW_COUNT = 4;
-
     @BindArray(R.array.my_channel)
     String[] my_channel;
     @BindArray(R.array.recommend_channel)
@@ -36,6 +36,7 @@ public class ChannelManagerFragment extends BaseFragment {
     @BindView(R.id.rv_channel)
     RecyclerView rvChannel;
     Unbinder unbinder;
+    private ChannelManagerAdapter adapter;
 
 
     public static ChannelManagerFragment newInstance() {
@@ -71,12 +72,10 @@ public class ChannelManagerFragment extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.iv_close, R.id.tv_edit})
+    @OnClick({R.id.iv_close})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_close:
-                break;
-            case R.id.tv_edit:
                 break;
         }
     }
@@ -85,18 +84,58 @@ public class ChannelManagerFragment extends BaseFragment {
      * 初始化recyclerView
      */
     private void initRecycleView() {
-        rvChannel.setLayoutManager(new GridLayoutManager(this.getActivity(), ROW_COUNT));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), ChannelManagerAdapter.ROW_COUNT);
+        RecyclerViewItemDecoration gridDividerItemDecoration = new RecyclerViewItemDecoration(getActivity(),
+                0,0,true,true);
+        rvChannel.addItemDecoration(gridDividerItemDecoration);
+        adapter = new ChannelManagerAdapter(getChannels(), getActivity());
+        rvChannel.setLayoutManager(adapter.setSpanCount(gridLayoutManager));
+        rvChannel.setAdapter(adapter);
     }
 
+    /**
+     * 获取channel
+     */
     private List<Channel> getChannels() {
         List<Channel> channels = new ArrayList<>();
         Channel channel = new Channel();
         channel.setItemType(Channel.TYPE_MY_CHANNEL_TITLE);
         channel.setChannelName(this.getString(R.string.my_channel));
-        channel.setChannelId(-);
+        channel.setChannelId(0);
+        channel.setChannelSelect(true);
+        channel.setChannelType(1);
+        channels.add(channel);
+        int i = 0;
         for (String s : my_channel) {
-            Channel channel
+            i++;
+            Channel c = new Channel();
+            c.setItemType(Channel.TYPE_MY_CHANNEL);
+            c.setChannelName(s);
+            c.setChannelId(i);
+            c.setChannelSelect(false);
+            c.setChannelType(0);
+            channels.add(c);
         }
+        Channel channel1 = new Channel();
+        channel1.setItemType(Channel.TYPE_ADD_CHANNEL_TITLE);
+        channel1.setChannelName(this.getString(R.string.add_channel));
+        channel1.setChannelId(i++);
+        channel1.setChannelSelect(true);
+        channel1.setChannelType(1);
+        channels.add(channel1);
+
+        for (String s : recommend_channel) {
+            i++;
+            Channel c = new Channel();
+            c.setItemType(Channel.TYPE_ADD_CHANNEL);
+            c.setChannelName(s);
+            c.setChannelId(i);
+            c.setChannelSelect(false);
+            c.setChannelType(0);
+            channels.add(c);
+        }
+        return channels;
+
     }
 
     @Override

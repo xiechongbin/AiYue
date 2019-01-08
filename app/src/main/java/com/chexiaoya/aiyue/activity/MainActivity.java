@@ -1,10 +1,12 @@
 package com.chexiaoya.aiyue.activity;
 
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.view.View;
-import android.widget.Toast;
 
 import com.chexiaoya.aiyue.R;
+import com.chexiaoya.aiyue.fragment.ChannelManagerFragment;
 import com.chexiaoya.aiyue.interfaces.OnTabClickListener;
 import com.chexiaoya.aiyue.view.BottomBar;
 import com.chexiaoya.aiyue.view.BottomBarTabView;
@@ -35,11 +37,15 @@ public class MainActivity extends BaseActivity implements OnTabClickListener {
     public void initData() {
         initBottomBar();
         addCustomActionBar();
+        ChannelManagerFragment channelManagerFragment = ChannelManagerFragment.newInstance();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.container, channelManagerFragment, ChannelManagerFragment.class.getSimpleName());
+        transaction.commitAllowingStateLoss();
     }
 
     @Override
     public void onTabClick(View view) {
-        Toast.makeText(this, view.getId() + "", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -60,7 +66,7 @@ public class MainActivity extends BaseActivity implements OnTabClickListener {
     public void addCustomActionBar() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null && !actionBar.isShowing()) {
-            actionBar.show();//隐藏标题栏
+            //actionBar.show();//隐藏标题栏
         }
     }
 }

@@ -15,7 +15,7 @@ public class Channel extends LitePalSupport {
     @Column(ignore = true)
     public int itemType;
 
-    private String channelId;
+    private int channelId;
 
     private String channelName;
 
@@ -31,11 +31,11 @@ public class Channel extends LitePalSupport {
         this.itemType = itemType;
     }
 
-    public String getChannelId() {
-        return channelId == null ? "" : channelId;
+    public int getChannelId() {
+        return channelId;
     }
 
-    public void setChannelId(String channelId) {
+    public void setChannelId(int channelId) {
         this.channelId = channelId;
     }
 
