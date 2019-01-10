@@ -6,7 +6,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp">
 
         <TextView
             android:id="@+id/tv_my_channel"
@@ -30,14 +31,15 @@
 
         <TextView
             android:id="@+id/tv_edit"
-            android:layout_width="62dp"
-            android:layout_height="30dp"
+            android:layout_width="50dp"
+            android:layout_height="26dp"
             android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
             android:background="@drawable/shape_edit"
             android:gravity="center"
             android:text="@string/edit"
             android:textColor="@color/color_ff3d6f"
-            android:textSize="15sp"/>
+            android:textSize="12sp"/>
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

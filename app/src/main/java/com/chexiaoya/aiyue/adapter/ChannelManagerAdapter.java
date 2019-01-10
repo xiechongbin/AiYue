@@ -1,15 +1,13 @@
 package com.chexiaoya.aiyue.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chexiaoya.aiyue.R;
@@ -26,40 +24,38 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public static final int ROW_COUNT = 4;
     private List<Channel> channelList;
     private Context context;
-    private int channelItemWidth;
+    private boolean showSelectedIcon;
+    private int lastPosition;
+
 
     public ChannelManagerAdapter(List<Channel> channelList, Context context) {
         this.channelList = channelList;
         this.context = context;
-        channelItemWidth = getItemWidth();
-        Log.d("width", channelItemWidth + "");
+        lastPosition = getLastMyChannelItem();
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == Channel.TYPE_MY_CHANNEL_TITLE) {
             View view = LayoutInflater.from(context).inflate(R.layout.layout_channel_item_type1, parent, false);
             return new ViewHolder1(view);
         } else if (viewType == Channel.TYPE_MY_CHANNEL) {
             View view = LayoutInflater.from(context).inflate(R.layout.layout_channel_item, parent, false);
-            view.setBackgroundColor(Color.BLACK);
-            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(channelItemWidth, channelItemWidth / 2);
-            view.setLayoutParams(layout);
+            view.setElevation(11);
             return new ViewHolder3(view);
         } else if (viewType == Channel.TYPE_ADD_CHANNEL_TITLE) {
             View view = LayoutInflater.from(context).inflate(R.layout.layout_channel_item_type2, parent, false);
             return new ViewHolder2(view);
         } else if (viewType == Channel.TYPE_ADD_CHANNEL) {
             View view = LayoutInflater.from(context).inflate(R.layout.layout_channel_item_type3, parent, false);
-            LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(channelItemWidth, channelItemWidth / 2);
-            view.setLayoutParams(layout);
             return new ViewHolder4(view);
         }
         return null;
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder1) {
             final ViewHolder1 holder1 = (ViewHolder1) holder;
             holder1.tv_edit.setOnClickListener(new View.OnClickListener() {
@@ -70,6 +66,8 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     } else if (context.getResources().getString(R.string.finish).equals(holder1.tv_edit.getText().toString())) {
                         holder1.tv_edit.setText(R.string.edit);
                     }
+                    showSelectedIcon = !showSelectedIcon;
+                    notifyDataSetChanged();
                 }
             });
         } else if (holder instanceof ViewHolder2) {
@@ -77,12 +75,33 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             holder2.tv_recommend.setText(R.string.add_channel);
         } else if (holder instanceof ViewHolder3) {
             ViewHolder3 holder3 = (ViewHolder3) holder;
-            holder3.iv_delete_item.setVisibility(View.GONE);
             holder3.tv_my_channel.setText(channelList.get(position).getChannelName());
+            holder3.iv_delete_item.setVisibility(showSelectedIcon ? View.VISIBLE : View.GONE);
+            holder3.iv_delete_item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Channel channel = channelList.get(holder.getAdapterPosition());
+
+                    Channel add = new Channel();
+                    add.setItemType(Channel.TYPE_ADD_CHANNEL);
+                    add.setChannelName(channel.getChannelName());
+                    channelList.add(channelList.size() - 1, add);
+
+                    channelList.remove(holder.getAdapterPosition());
+                    notifyItemRemoved(holder.getAdapterPosition());
+                    lastPosition--;
+
+                    notifyItemInserted(channelList.size() - 1);
+                    notifyItemRangeChanged(holder.getAdapterPosition(), channelList.size());
+
+                }
+            });
             //长按事件
             holder3.view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    showSelectedIcon = !showSelectedIcon;
+                    notifyDataSetChanged();
                     return true;
                 }
             });
@@ -92,6 +111,24 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             holder4.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Channel channel = channelList.get(holder.getAdapterPosition());
+                    if (channel != null) {
+                        channel.setItemType(Channel.TYPE_MY_CHANNEL);
+                    }
+                    channelList.remove(holder.getAdapterPosition());
+
+                    Channel add = new Channel();
+                    add.setItemType(Channel.TYPE_MY_CHANNEL);
+                    add.setChannelName(channel.getChannelName());
+                    channelList.add(lastPosition + 1, add);
+
+                    //插入
+                    notifyItemInserted(lastPosition + 1);
+                    lastPosition++;
+
+                    //移除
+                    notifyItemRemoved(holder.getAdapterPosition());
+                    notifyItemRangeChanged(holder.getAdapterPosition(), channelList.size());
 
                 }
             });
@@ -113,6 +150,19 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             }
         }
         return 0;
+    }
+
+    /**
+     * 获取我的频道的最后一个position
+     */
+    private int getLastMyChannelItem() {
+        int position = 0;
+        for (Channel channel : channelList) {
+            if (channel.getItemType() == Channel.TYPE_MY_CHANNEL) {
+                position++;
+            }
+        }
+        return position;
     }
 
     /**
@@ -149,7 +199,7 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     class ViewHolder1 extends RecyclerView.ViewHolder {
         private TextView tv_edit;
 
-        public ViewHolder1(View itemView) {
+        ViewHolder1(View itemView) {
             super(itemView);
             tv_edit = itemView.findViewById(R.id.tv_edit);
         }
@@ -161,7 +211,7 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     class ViewHolder2 extends RecyclerView.ViewHolder {
         private TextView tv_recommend;
 
-        public ViewHolder2(View itemView) {
+        ViewHolder2(View itemView) {
             super(itemView);
             tv_recommend = itemView.findViewById(R.id.tv_recommend);
         }
@@ -175,7 +225,7 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         private TextView tv_my_channel;
         private View view;
 
-        public ViewHolder3(View itemView) {
+        ViewHolder3(View itemView) {
             super(itemView);
             iv_delete_item = itemView.findViewById(R.id.iv_delete_item);
             tv_my_channel = itemView.findViewById(R.id.tv_channel);
@@ -190,7 +240,7 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         private TextView tv_recommend_channel;
         private View view;
 
-        public ViewHolder4(View itemView) {
+        ViewHolder4(View itemView) {
             super(itemView);
             tv_recommend_channel = itemView.findViewById(R.id.tv_recommend_channel);
             view = itemView;

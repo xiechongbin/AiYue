@@ -1,17 +1,22 @@
 package com.chexiaoya.aiyue.fragment;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.chexiaoya.aiyue.R;
 import com.chexiaoya.aiyue.adapter.ChannelManagerAdapter;
-import com.chexiaoya.aiyue.adapter.RecyclerViewItemDecoration;
+import com.chexiaoya.aiyue.adapter.GridSpacingItemDecoration;
 import com.chexiaoya.aiyue.bean.Channel;
+import com.chexiaoya.aiyue.utils.AndroidDeviceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +60,12 @@ public class ChannelManagerFragment extends BaseFragment {
     public void initView(Object obj) {
         View view = (View) obj;
         unbinder = ButterKnife.bind(this, view);
+        ViewGroup.LayoutParams layoutParams = ivClose.getLayoutParams();
+        LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, layoutParams.height);
+        layoutParams1.topMargin = AndroidDeviceUtils.getStatusBarHeight(getActivity());
+        layoutParams1.gravity = Gravity.LEFT;
+        layoutParams1.leftMargin = AndroidDeviceUtils.dip2px(getActivity(), 10);
+        ivClose.setLayoutParams(layoutParams1);
     }
 
     @Override
@@ -76,6 +87,7 @@ public class ChannelManagerFragment extends BaseFragment {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_close:
+                exit();
                 break;
         }
     }
@@ -85,10 +97,8 @@ public class ChannelManagerFragment extends BaseFragment {
      */
     private void initRecycleView() {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), ChannelManagerAdapter.ROW_COUNT);
-        RecyclerViewItemDecoration gridDividerItemDecoration = new RecyclerViewItemDecoration(getActivity(),
-                0,0,true,true);
-        rvChannel.addItemDecoration(gridDividerItemDecoration);
         adapter = new ChannelManagerAdapter(getChannels(), getActivity());
+        rvChannel.addItemDecoration(new GridSpacingItemDecoration(AndroidDeviceUtils.dip2px(getActivity(), 10), true));
         rvChannel.setLayoutManager(adapter.setSpanCount(gridLayoutManager));
         rvChannel.setAdapter(adapter);
     }
@@ -146,9 +156,25 @@ public class ChannelManagerFragment extends BaseFragment {
         return rootView;
     }
 
+    /**
+     * 退出
+     */
+    private void exit() {
+        try {
+            FragmentManager fragmentManager = getFragmentManager();
+            if (fragmentManager != null) {
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.setCustomAnimations(R.anim.anim_page_up, R.anim.anim_page_dowm);
+                transaction.remove(this);
+                transaction.commitAllowingStateLoss();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
+    public boolean onBackPressed() {
+        return true;
     }
 }

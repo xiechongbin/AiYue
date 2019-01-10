@@ -6,7 +6,9 @@ import android.support.v7.app.ActionBar;
 import android.view.View;
 
 import com.chexiaoya.aiyue.R;
+import com.chexiaoya.aiyue.fragment.BaseFragment;
 import com.chexiaoya.aiyue.fragment.ChannelManagerFragment;
+import com.chexiaoya.aiyue.interfaces.BackHandledInterface;
 import com.chexiaoya.aiyue.interfaces.OnTabClickListener;
 import com.chexiaoya.aiyue.view.BottomBar;
 import com.chexiaoya.aiyue.view.BottomBarTabView;
@@ -14,7 +16,7 @@ import com.chexiaoya.aiyue.view.BottomBarTabView;
 import butterknife.BindString;
 import butterknife.BindView;
 
-public class MainActivity extends BaseActivity implements OnTabClickListener {
+public class MainActivity extends BaseActivity implements OnTabClickListener, BackHandledInterface {
 
     @BindView(R.id.bottomBar)
     public BottomBar bottomBar;
@@ -28,6 +30,8 @@ public class MainActivity extends BaseActivity implements OnTabClickListener {
     @BindString(R.string.my)
     public String my;
 
+    private BaseFragment mBackHandedFragment;
+
     @Override
     public int getLayout() {
         return R.layout.activity_main;
@@ -37,15 +41,20 @@ public class MainActivity extends BaseActivity implements OnTabClickListener {
     public void initData() {
         initBottomBar();
         addCustomActionBar();
-        ChannelManagerFragment channelManagerFragment = ChannelManagerFragment.newInstance();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.container, channelManagerFragment, ChannelManagerFragment.class.getSimpleName());
-        transaction.commitAllowingStateLoss();
     }
 
     @Override
     public void onTabClick(View view) {
+        showChannelSelectFragment();
+    }
+
+    private void showChannelSelectFragment() {
+        ChannelManagerFragment channelManagerFragment = ChannelManagerFragment.newInstance();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.anim_page_up, R.anim.anim_page_dowm);
+        transaction.add(R.id.container, channelManagerFragment, ChannelManagerFragment.class.getSimpleName());
+        transaction.commitAllowingStateLoss();
     }
 
     /**
@@ -67,6 +76,23 @@ public class MainActivity extends BaseActivity implements OnTabClickListener {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null && !actionBar.isShowing()) {
             //actionBar.show();//隐藏标题栏
+        }
+    }
+
+    @Override
+    public void setSelectedFragment(BaseFragment selectedFragment) {
+        this.mBackHandedFragment = selectedFragment;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (mBackHandedFragment == null || !mBackHandedFragment.onBackPressed()) {
+            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                super.onBackPressed();
+            } else {
+                getSupportFragmentManager().popBackStack();
+            }
         }
     }
 }

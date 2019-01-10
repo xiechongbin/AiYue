@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.chexiaoya.aiyue.interfaces.BackHandledInterface;
 import com.chexiaoya.aiyue.interfaces.IBase;
 
 /**
@@ -17,11 +18,25 @@ import com.chexiaoya.aiyue.interfaces.IBase;
  */
 public abstract class BaseFragment extends Fragment implements IBase, View.OnTouchListener {
     protected Activity activity;
+    protected BackHandledInterface mBackHandledInterface;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activity = getActivity();
+        if (!(activity instanceof BackHandledInterface)) {
+            throw new ClassCastException("Hosting Activity must implement BackHandledInterface");
+        } else {
+            this.mBackHandledInterface = (BackHandledInterface) getActivity();
+
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        //告诉FragmentActivity，当前Fragment在栈顶
+        mBackHandledInterface.setSelectedFragment(this);
     }
 
     protected void onCheckSaveInstance(Bundle savedInstanceState) {
@@ -60,4 +75,5 @@ public abstract class BaseFragment extends Fragment implements IBase, View.OnTou
 
     }
 
+    public abstract boolean onBackPressed();
 }
