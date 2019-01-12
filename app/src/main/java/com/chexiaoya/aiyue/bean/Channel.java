@@ -1,6 +1,5 @@
 package com.chexiaoya.aiyue.bean;
 
-import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 /**
@@ -12,16 +11,25 @@ public class Channel extends LitePalSupport {
     public static final int TYPE_MY_CHANNEL = 3;
     public static final int TYPE_ADD_CHANNEL = 4;
 
-    @Column(ignore = true)
     public int itemType;
 
-    private int channelId;
+    private String channelId;
 
     private String channelName;
 
     private int channelType;//0 可移除，1不可移除
 
     private boolean isChannelSelect;// 0 未选中 1 选中
+
+    private boolean isChannelAdd;//频道是否添加过
+
+    public boolean isChannelAdd() {
+        return isChannelAdd;
+    }
+
+    public void setChannelAdd(boolean channelAdd) {
+        isChannelAdd = channelAdd;
+    }
 
     public int getItemType() {
         return itemType;
@@ -31,11 +39,11 @@ public class Channel extends LitePalSupport {
         this.itemType = itemType;
     }
 
-    public int getChannelId() {
-        return channelId;
+    public String getChannelId() {
+        return channelId == null ? "" : channelId;
     }
 
-    public void setChannelId(int channelId) {
+    public void setChannelId(String channelId) {
         this.channelId = channelId;
     }
 
@@ -63,4 +71,15 @@ public class Channel extends LitePalSupport {
         isChannelSelect = channelSelect;
     }
 
+    @Override
+    public String toString() {
+        return "Channel{" +
+                "itemType=" + itemType +
+                ", channelId='" + channelId + '\'' +
+                ", channelName='" + channelName + '\'' +
+                ", channelType=" + channelType +
+                ", isChannelSelect=" + isChannelSelect +
+                ", isChannelAdd=" + isChannelAdd +
+                '}';
+    }
 }

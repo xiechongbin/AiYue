@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,6 +16,8 @@ import com.chexiaoya.aiyue.adapter.ChannelManagerAdapter;
 import com.chexiaoya.aiyue.adapter.GridSpacingItemDecoration;
 import com.chexiaoya.aiyue.bean.Channel;
 import com.chexiaoya.aiyue.utils.AndroidDeviceUtils;
+
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +33,10 @@ import butterknife.Unbinder;
  * Created by xcb on 2018/12/29.
  */
 public class ChannelManagerFragment extends BaseFragment {
-    @BindArray(R.array.my_channel)
-    String[] my_channel;
-    @BindArray(R.array.recommend_channel)
-    String[] recommend_channel;
+    @BindArray(R.array.channel)
+    String[] channel;
+    @BindArray(R.array.channel_params)
+    String[] channel_params;
     @BindView(R.id.iv_close)
     ImageView ivClose;
     @BindView(R.id.rv_channel)
@@ -62,9 +63,9 @@ public class ChannelManagerFragment extends BaseFragment {
         unbinder = ButterKnife.bind(this, view);
         ViewGroup.LayoutParams layoutParams = ivClose.getLayoutParams();
         LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, layoutParams.height);
-        layoutParams1.topMargin = AndroidDeviceUtils.getStatusBarHeight(getActivity());
-        layoutParams1.gravity = Gravity.LEFT;
-        layoutParams1.leftMargin = AndroidDeviceUtils.dip2px(getActivity(), 10);
+        layoutParams1.topMargin = AndroidDeviceUtils.getStatusBarHeight(activity);
+        layoutParams1.gravity = Gravity.START;
+        layoutParams1.leftMargin = AndroidDeviceUtils.dip2px(activity, 10);
         ivClose.setLayoutParams(layoutParams1);
     }
 
@@ -98,7 +99,7 @@ public class ChannelManagerFragment extends BaseFragment {
     private void initRecycleView() {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), ChannelManagerAdapter.ROW_COUNT);
         adapter = new ChannelManagerAdapter(getChannels(), getActivity());
-        rvChannel.addItemDecoration(new GridSpacingItemDecoration(AndroidDeviceUtils.dip2px(getActivity(), 10), true));
+        rvChannel.addItemDecoration(new GridSpacingItemDecoration(AndroidDeviceUtils.dip2px(activity, 10), true));
         rvChannel.setLayoutManager(adapter.setSpanCount(gridLayoutManager));
         rvChannel.setAdapter(adapter);
     }
@@ -108,52 +109,52 @@ public class ChannelManagerFragment extends BaseFragment {
      */
     private List<Channel> getChannels() {
         List<Channel> channels = new ArrayList<>();
-        Channel channel = new Channel();
-        channel.setItemType(Channel.TYPE_MY_CHANNEL_TITLE);
-        channel.setChannelName(this.getString(R.string.my_channel));
-        channel.setChannelId(0);
-        channel.setChannelSelect(true);
-        channel.setChannelType(1);
-        channels.add(channel);
-        int i = 0;
-        for (String s : my_channel) {
-            i++;
-            Channel c = new Channel();
-            c.setItemType(Channel.TYPE_MY_CHANNEL);
-            c.setChannelName(s);
-            c.setChannelId(i);
-            c.setChannelSelect(false);
-            c.setChannelType(0);
-            channels.add(c);
-        }
-        Channel channel1 = new Channel();
-        channel1.setItemType(Channel.TYPE_ADD_CHANNEL_TITLE);
-        channel1.setChannelName(this.getString(R.string.add_channel));
-        channel1.setChannelId(i++);
-        channel1.setChannelSelect(true);
-        channel1.setChannelType(1);
-        channels.add(channel1);
+        int count = LitePal.count(Channel.class);
+        //头部
+        Channel head = new Channel();
+        head.setItemType(Channel.TYPE_MY_CHANNEL_TITLE);
+        head.setChannelName(this.getString(R.string.my_channel));
+        head.setChannelSelect(true);
+        head.setChannelType(1);
+        channels.add(head);
 
-        for (String s : recommend_channel) {
-            i++;
-            Channel c = new Channel();
-            c.setItemType(Channel.TYPE_ADD_CHANNEL);
-            c.setChannelName(s);
-            c.setChannelId(i);
-            c.setChannelSelect(false);
-            c.setChannelType(0);
-            channels.add(c);
+        if (count <= 0) {//先保存
+            for (int i = 0; i < channel.length; i++) {
+                Channel c = new Channel();
+                if (i == 0) {
+                    c.setItemType(Channel.TYPE_MY_CHANNEL);
+                    c.setChannelName(channel[i]);
+                    c.setChannelSelect(false);
+                    c.setChannelType(1);
+                    c.setChannelId(channel_params[i]);
+                    c.setChannelAdd(true);
+                } else {
+                    c.setItemType(Channel.TYPE_ADD_CHANNEL);
+                    c.setChannelName(channel[i]);
+                    c.setChannelSelect(false);
+                    c.setChannelType(0);
+                    c.setChannelId(channel_params[i]);
+                    c.setChannelAdd(false);
+                }
+                c.save();
+            }
+        }
+        List<Channel> lists = LitePal.where("isChannelAdd = ?", "1").find(Channel.class);
+        if (lists != null && lists.size() > 0) {
+            channels.addAll(lists);
+        }
+        //头部
+        Channel newChannel = new Channel();
+        newChannel.setItemType(Channel.TYPE_ADD_CHANNEL_TITLE);
+        newChannel.setChannelName(this.getString(R.string.add_channel));
+        newChannel.setChannelSelect(true);
+        newChannel.setChannelType(1);
+        channels.add(newChannel);
+        List<Channel> lists1 = LitePal.where("isChannelAdd = ?", "0").find(Channel.class);
+        if (lists1 != null && lists1.size() > 0) {
+            channels.addAll(lists1);
         }
         return channels;
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // TODO: inflate a fragment view
-        View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        unbinder = ButterKnife.bind(this, rootView);
-        return rootView;
     }
 
     /**

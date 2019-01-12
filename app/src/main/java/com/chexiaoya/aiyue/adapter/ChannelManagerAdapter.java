@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.chexiaoya.aiyue.R;
 import com.chexiaoya.aiyue.bean.Channel;
-import com.chexiaoya.aiyue.utils.AndroidDeviceUtils;
 
 import java.util.List;
 
@@ -75,16 +74,26 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             holder2.tv_recommend.setText(R.string.add_channel);
         } else if (holder instanceof ViewHolder3) {
             ViewHolder3 holder3 = (ViewHolder3) holder;
+            Channel channel = channelList.get(holder.getAdapterPosition());
             holder3.tv_my_channel.setText(channelList.get(position).getChannelName());
             holder3.iv_delete_item.setVisibility(showSelectedIcon ? View.VISIBLE : View.GONE);
+            if (channel != null && channel.getChannelType() == 1) {
+                holder3.iv_delete_item.setVisibility(View.GONE);
+            }
             holder3.iv_delete_item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Channel channel = channelList.get(holder.getAdapterPosition());
 
                     Channel add = new Channel();
-                    add.setItemType(Channel.TYPE_ADD_CHANNEL);
+                    add.setChannelId(channel.getChannelId());
                     add.setChannelName(channel.getChannelName());
+                    add.setItemType(Channel.TYPE_ADD_CHANNEL);
+                    add.setChannelType(channel.getChannelType());
+                    add.setChannelSelect(channel.isChannelSelect());
+                    add.setChannelAdd(false);
+                    add.saveOrUpdate("channelName = ?", add.getChannelName());
+
                     channelList.add(channelList.size() - 1, add);
 
                     channelList.remove(holder.getAdapterPosition());
@@ -114,13 +123,18 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     Channel channel = channelList.get(holder.getAdapterPosition());
                     if (channel != null) {
                         channel.setItemType(Channel.TYPE_MY_CHANNEL);
+                        Channel add = new Channel();
+                        add.setChannelId(channel.getChannelId());
+                        add.setChannelName(channel.getChannelName());
+                        add.setItemType(Channel.TYPE_MY_CHANNEL);
+                        add.setChannelType(channel.getChannelType());
+                        add.setChannelSelect(channel.isChannelSelect());
+                        add.setChannelAdd(true);
+                        add.saveOrUpdate("channelName = ?", add.getChannelName());
+                        channelList.remove(holder.getAdapterPosition());
+                        channelList.add(lastPosition + 1, add);
                     }
-                    channelList.remove(holder.getAdapterPosition());
 
-                    Channel add = new Channel();
-                    add.setItemType(Channel.TYPE_MY_CHANNEL);
-                    add.setChannelName(channel.getChannelName());
-                    channelList.add(lastPosition + 1, add);
 
                     //插入
                     notifyItemInserted(lastPosition + 1);
@@ -181,16 +195,6 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             }
         });
         return gridLayoutManager;
-    }
-
-
-    /**
-     * 获取每个item的宽度 高度设置为item的一半
-     */
-    private int getItemWidth() {
-        int screenWidth = AndroidDeviceUtils.getScreenWidth(context);
-        int dividerWidth = AndroidDeviceUtils.dip2px(context, 14);
-        return (screenWidth - dividerWidth * (ROW_COUNT + 1)) / 4;
     }
 
     /**

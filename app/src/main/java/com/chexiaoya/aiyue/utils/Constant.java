@@ -22,4 +22,15 @@ public class Constant {
      * 必应每日壁纸 来源于 https://www.dujin.org/fenxiang/jiaocheng/3618.html
      */
     public static final String FIRST_PAGE_PIC_URL = "http://api.dujin.org/bing/1920.php";
+
+
+    /**
+     * app_key
+     */
+    public static final String APP_KEY = "467ada4c0c147f7439dbf2238affe240";
+
+    /**
+     * 接口请求地址s
+     */
+    public static final String URL = " http://v.juhe.cn/toutiao/index";
 }

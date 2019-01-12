@@ -3,6 +3,7 @@ package com.chexiaoya.aiyue.activity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.View;
 
 import com.chexiaoya.aiyue.R;
@@ -10,8 +11,17 @@ import com.chexiaoya.aiyue.fragment.BaseFragment;
 import com.chexiaoya.aiyue.fragment.ChannelManagerFragment;
 import com.chexiaoya.aiyue.interfaces.BackHandledInterface;
 import com.chexiaoya.aiyue.interfaces.OnTabClickListener;
+import com.chexiaoya.aiyue.utils.Constant;
 import com.chexiaoya.aiyue.view.BottomBar;
 import com.chexiaoya.aiyue.view.BottomBarTabView;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -46,6 +56,13 @@ public class MainActivity extends BaseActivity implements OnTabClickListener, Ba
     @Override
     public void onTabClick(View view) {
         showChannelSelectFragment();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getNews();
+            }
+        }).start();
+
     }
 
     private void showChannelSelectFragment() {
@@ -93,6 +110,32 @@ public class MainActivity extends BaseActivity implements OnTabClickListener, Ba
             } else {
                 getSupportFragmentManager().popBackStack();
             }
+        }
+    }
+
+    private void getNews() {
+        try {
+            //http://v.juhe.cn/toutiao/index?type=top&key=APPKEY
+            URL url = new URL(Constant.URL + "?" + "type=top&key=" + Constant.APP_KEY);
+            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+            InputStream inputStream = httpURLConnection.getInputStream();
+            InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
+
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            StringBuffer buffer = new StringBuffer();
+            String temp = null;
+            while ((temp = bufferedReader.readLine()) != null) {
+                buffer.append(temp);
+            }
+            bufferedReader.close();//记得关闭
+            reader.close();
+            inputStream.close();
+            Log.e("MAIN", buffer.toString());//打印结果
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
