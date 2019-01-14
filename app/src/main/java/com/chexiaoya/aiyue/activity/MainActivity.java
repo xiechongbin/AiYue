@@ -9,7 +9,10 @@ import android.view.View;
 import com.chexiaoya.aiyue.R;
 import com.chexiaoya.aiyue.bean.NewsInfoBean;
 import com.chexiaoya.aiyue.fragment.BaseFragment;
-import com.chexiaoya.aiyue.fragment.ChannelManagerFragment;
+import com.chexiaoya.aiyue.fragment.JianDanFragment;
+import com.chexiaoya.aiyue.fragment.MyInfoFragment;
+import com.chexiaoya.aiyue.fragment.NewsFragment;
+import com.chexiaoya.aiyue.fragment.VideoFragment;
 import com.chexiaoya.aiyue.interfaces.BackHandledInterface;
 import com.chexiaoya.aiyue.interfaces.OnTabClickListener;
 import com.chexiaoya.aiyue.interfaces.RetrofitRequestInterface;
@@ -38,6 +41,10 @@ public class MainActivity extends BaseActivity implements OnTabClickListener, Ba
     public String jian_dan;
     @BindString(R.string.my)
     public String my;
+    private JianDanFragment jianDanFragment;
+    private NewsFragment newsFragment;
+    private VideoFragment videoFragment;
+    private MyInfoFragment myInfoFragment;
 
     private BaseFragment mBackHandedFragment;
 
@@ -50,28 +57,85 @@ public class MainActivity extends BaseActivity implements OnTabClickListener, Ba
     public void initData() {
         initBottomBar();
         addCustomActionBar();
+        initFragment();
     }
 
     @Override
     public void onTabClick(View view) {
-        showChannelSelectFragment();
+        switch (view.getId()) {
+            case R.id.tab_first:
+                if (newsFragment != null && !newsFragment.isVisible()) {
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.show(newsFragment);
+                    fragmentTransaction.hide(videoFragment);
+                    fragmentTransaction.hide(jianDanFragment);
+                    fragmentTransaction.hide(myInfoFragment);
+                    fragmentTransaction.commitAllowingStateLoss();
+                }
+                break;
+            case R.id.tab_second:
+                if (videoFragment != null && !videoFragment.isVisible()) {
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.show(videoFragment);
+                    fragmentTransaction.hide(newsFragment);
+                    fragmentTransaction.hide(jianDanFragment);
+                    fragmentTransaction.hide(myInfoFragment);
+                    fragmentTransaction.commitAllowingStateLoss();
+                }
+                break;
+            case R.id.tab_third:
+                if (jianDanFragment != null && !jianDanFragment.isVisible()) {
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.show(jianDanFragment);
+                    fragmentTransaction.hide(videoFragment);
+                    fragmentTransaction.hide(newsFragment);
+                    fragmentTransaction.hide(myInfoFragment);
+                    fragmentTransaction.commitAllowingStateLoss();
+                }
+                break;
+            case R.id.tab_fourth:
+                if (myInfoFragment != null && !myInfoFragment.isVisible()) {
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.show(myInfoFragment);
+                    fragmentTransaction.hide(videoFragment);
+                    fragmentTransaction.hide(jianDanFragment);
+                    fragmentTransaction.hide(newsFragment);
+                    fragmentTransaction.commitAllowingStateLoss();
+                }
+                break;
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
-               // getNews();
-                request();
+                //request();
             }
         }).start();
 
     }
 
-    private void showChannelSelectFragment() {
-        ChannelManagerFragment channelManagerFragment = ChannelManagerFragment.newInstance();
+    /**
+     * 初始化fragment
+     */
+    private void initFragment() {
+        jianDanFragment = JianDanFragment.newInstance();
+        newsFragment = NewsFragment.newInstance();
+        videoFragment = VideoFragment.newInstance();
+        myInfoFragment = MyInfoFragment.newInstance();
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setCustomAnimations(R.anim.anim_page_up, R.anim.anim_page_dowm);
-        transaction.add(R.id.container, channelManagerFragment, ChannelManagerFragment.class.getSimpleName());
-        transaction.commitAllowingStateLoss();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.container, newsFragment, NewsFragment.class.getSimpleName());
+        fragmentTransaction.add(R.id.container, videoFragment, VideoFragment.class.getSimpleName());
+        fragmentTransaction.add(R.id.container, jianDanFragment, JianDanFragment.class.getSimpleName());
+        fragmentTransaction.add(R.id.container, myInfoFragment, MyInfoFragment.class.getSimpleName());
+
+        if (!newsFragment.isVisible()) {
+            fragmentTransaction.show(newsFragment);
+        }
+        fragmentTransaction.hide(videoFragment);
+        fragmentTransaction.hide(myInfoFragment);
+        fragmentTransaction.hide(jianDanFragment);
+        fragmentTransaction.commitAllowingStateLoss();
+
     }
 
     /**
@@ -130,7 +194,7 @@ public class MainActivity extends BaseActivity implements OnTabClickListener, Ba
                 NewsInfoBean bean = response.body();
                 Log.e("MAIN", bean.toString());//打印结果
             }
-
+            
             @Override
             public void onFailure(Call<NewsInfoBean> call, Throwable t) {
 
