@@ -12,4 +12,10 @@
     <string name="edit">编辑</string>
     <string name="recommend">频道推荐</string>
     <string name="add_channel">点击添加频道</string>
+
+
+    <string name="state_ing">数据加载中......</string>
+    <string name="state_empty">无数据</string>
+    <string name="state_error">数据加载失败......</string>
+
 </resources>

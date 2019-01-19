@@ -8,4 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="toast_animation">
+        <item name="android:windowEnterAnimation">@anim/anim_toast_show</item>
+        <item name="android:windowExitAnimation">@anim/anim_toast_hide</item>
+    </style>
+
 </resources>

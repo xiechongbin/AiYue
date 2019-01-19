@@ -48,8 +48,14 @@ dependencies {
     api "com.android.support:recyclerview-v7:$recycleview_version"
     api "org.litepal.android:java:$litepal_version"
 
-    api 'com.squareup.retrofit2:retrofit:2.2.0'
-    api 'com.squareup.okhttp3:okhttp:3.10.0'
-    api 'com.squareup.retrofit2:converter-gson:2.1.0'
+    api "com.squareup.retrofit2:retrofit:$retrofit_version"
+    api "com.squareup.okhttp3:okhttp:$okhttp_version"
+    api "com.squareup.retrofit2:converter-gson:$json_version"
+    
+    api "org.greenrobot:eventbus:$eventbus_version"
+
+    api "com.orhanobut:logger:$logger_version"
+
+
 
 }

@@ -2,10 +2,12 @@ package com.chexiaoya.aiyue.bean;
 
 import org.litepal.crud.LitePalSupport;
 
+import java.io.Serializable;
+
 /**
  * Created by xcb on 2019/1/7.
  */
-public class Channel extends LitePalSupport {
+public class Channel extends LitePalSupport implements Serializable {
     public static final int TYPE_MY_CHANNEL_TITLE = 1;
     public static final int TYPE_ADD_CHANNEL_TITLE = 2;
     public static final int TYPE_MY_CHANNEL = 3;

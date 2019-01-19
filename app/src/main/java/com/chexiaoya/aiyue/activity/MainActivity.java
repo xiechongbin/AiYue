@@ -3,11 +3,9 @@ package com.chexiaoya.aiyue.activity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.View;
 
 import com.chexiaoya.aiyue.R;
-import com.chexiaoya.aiyue.bean.NewsInfoBean;
 import com.chexiaoya.aiyue.fragment.BaseFragment;
 import com.chexiaoya.aiyue.fragment.JianDanFragment;
 import com.chexiaoya.aiyue.fragment.MyInfoFragment;
@@ -15,18 +13,11 @@ import com.chexiaoya.aiyue.fragment.NewsFragment;
 import com.chexiaoya.aiyue.fragment.VideoFragment;
 import com.chexiaoya.aiyue.interfaces.BackHandledInterface;
 import com.chexiaoya.aiyue.interfaces.OnTabClickListener;
-import com.chexiaoya.aiyue.interfaces.RetrofitRequestInterface;
-import com.chexiaoya.aiyue.utils.Constant;
 import com.chexiaoya.aiyue.view.BottomBar;
 import com.chexiaoya.aiyue.view.BottomBarTabView;
 
 import butterknife.BindString;
 import butterknife.BindView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends BaseActivity implements OnTabClickListener, BackHandledInterface {
 
@@ -104,13 +95,6 @@ public class MainActivity extends BaseActivity implements OnTabClickListener, Ba
                 }
                 break;
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //request();
-            }
-        }).start();
-
     }
 
     /**
@@ -177,28 +161,5 @@ public class MainActivity extends BaseActivity implements OnTabClickListener, Ba
         }
     }
 
-    private void request() {
-        //步骤4:创建Retrofit对象
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constant.URL + "?" + "type=top")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        //步骤5:创建 网络请求接口 的实例
-        RetrofitRequestInterface retrofitRequestInterface = retrofit.create(RetrofitRequestInterface.class);
-        //对 发送请求 进行封装
-        Call<NewsInfoBean> infoBeanCall = retrofitRequestInterface.getNews();
-        //对 发送请求 进行封装
-        infoBeanCall.enqueue(new Callback<NewsInfoBean>() {
-            @Override
-            public void onResponse(Call<NewsInfoBean> call, Response<NewsInfoBean> response) {
-                NewsInfoBean bean = response.body();
-                Log.e("MAIN", bean.toString());//打印结果
-            }
-            
-            @Override
-            public void onFailure(Call<NewsInfoBean> call, Throwable t) {
 
-            }
-        });
-    }
 }

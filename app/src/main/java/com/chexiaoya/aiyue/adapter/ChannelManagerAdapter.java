@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.chexiaoya.aiyue.R;
 import com.chexiaoya.aiyue.bean.Channel;
+import com.chexiaoya.aiyue.interfaces.OnChannelChangeListener;
 
 import java.util.List;
 
@@ -25,12 +26,14 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private Context context;
     private boolean showSelectedIcon;
     private int lastPosition;
+    private OnChannelChangeListener listener;
 
 
-    public ChannelManagerAdapter(List<Channel> channelList, Context context) {
+    public ChannelManagerAdapter(List<Channel> channelList, Context context, OnChannelChangeListener listener) {
         this.channelList = channelList;
         this.context = context;
         lastPosition = getLastMyChannelItem();
+        this.listener = listener;
     }
 
     @NonNull
@@ -102,6 +105,9 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
                     notifyItemInserted(channelList.size() - 1);
                     notifyItemRangeChanged(holder.getAdapterPosition(), channelList.size());
+                    if (listener != null) {
+                        listener.onRemoveChannel(add);
+                    }
 
                 }
             });
@@ -133,6 +139,10 @@ public class ChannelManagerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                         add.saveOrUpdate("channelName = ?", add.getChannelName());
                         channelList.remove(holder.getAdapterPosition());
                         channelList.add(lastPosition + 1, add);
+
+                        if (listener != null) {
+                            listener.onAddChannel(add);
+                        }
                     }
 
 

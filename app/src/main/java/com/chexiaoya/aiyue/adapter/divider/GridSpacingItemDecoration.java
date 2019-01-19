@@ -1,11 +1,10 @@
-package com.chexiaoya.aiyue.adapter;
+package com.chexiaoya.aiyue.adapter.divider;
 
 import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -50,8 +49,6 @@ public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
                 }
             }
         }
-
-        Log.d("sspp", position + ">>>" + outRect.toString());
     }
 
     /**

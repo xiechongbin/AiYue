@@ -1,6 +1,6 @@
 package com.chexiaoya.aiyue.interfaces;
 
-import com.chexiaoya.aiyue.bean.NewsInfoBean;
+import com.chexiaoya.aiyue.bean.NewsRequestJsonBean;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -12,5 +12,5 @@ import retrofit2.http.GET;
 public interface RetrofitRequestInterface {
 
     @GET("index?type=top&key=467ada4c0c147f7439dbf2238affe240")
-    Call<NewsInfoBean> getNews();
+    Call<NewsRequestJsonBean> getNews();
 }

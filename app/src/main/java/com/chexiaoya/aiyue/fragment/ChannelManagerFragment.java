@@ -13,16 +13,17 @@ import android.widget.LinearLayout;
 
 import com.chexiaoya.aiyue.R;
 import com.chexiaoya.aiyue.adapter.ChannelManagerAdapter;
-import com.chexiaoya.aiyue.adapter.GridSpacingItemDecoration;
+import com.chexiaoya.aiyue.adapter.divider.GridSpacingItemDecoration;
 import com.chexiaoya.aiyue.bean.Channel;
+import com.chexiaoya.aiyue.interfaces.OnChannelChangeListener;
 import com.chexiaoya.aiyue.utils.AndroidDeviceUtils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindArray;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -32,11 +33,7 @@ import butterknife.Unbinder;
  * 频道管理frag
  * Created by xcb on 2018/12/29.
  */
-public class ChannelManagerFragment extends BaseFragment {
-    @BindArray(R.array.channel)
-    String[] channel;
-    @BindArray(R.array.channel_params)
-    String[] channel_params;
+public class ChannelManagerFragment extends BaseFragment implements OnChannelChangeListener {
     @BindView(R.id.iv_close)
     ImageView ivClose;
     @BindView(R.id.rv_channel)
@@ -97,8 +94,8 @@ public class ChannelManagerFragment extends BaseFragment {
      * 初始化recyclerView
      */
     private void initRecycleView() {
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), ChannelManagerAdapter.ROW_COUNT);
-        adapter = new ChannelManagerAdapter(getChannels(), getActivity());
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(activity, ChannelManagerAdapter.ROW_COUNT);
+        adapter = new ChannelManagerAdapter(getChannels(), activity, this);
         rvChannel.addItemDecoration(new GridSpacingItemDecoration(AndroidDeviceUtils.dip2px(activity, 10), true));
         rvChannel.setLayoutManager(adapter.setSpanCount(gridLayoutManager));
         rvChannel.setAdapter(adapter);
@@ -109,7 +106,6 @@ public class ChannelManagerFragment extends BaseFragment {
      */
     private List<Channel> getChannels() {
         List<Channel> channels = new ArrayList<>();
-        int count = LitePal.count(Channel.class);
         //头部
         Channel head = new Channel();
         head.setItemType(Channel.TYPE_MY_CHANNEL_TITLE);
@@ -118,27 +114,6 @@ public class ChannelManagerFragment extends BaseFragment {
         head.setChannelType(1);
         channels.add(head);
 
-        if (count <= 0) {//先保存
-            for (int i = 0; i < channel.length; i++) {
-                Channel c = new Channel();
-                if (i == 0) {
-                    c.setItemType(Channel.TYPE_MY_CHANNEL);
-                    c.setChannelName(channel[i]);
-                    c.setChannelSelect(false);
-                    c.setChannelType(1);
-                    c.setChannelId(channel_params[i]);
-                    c.setChannelAdd(true);
-                } else {
-                    c.setItemType(Channel.TYPE_ADD_CHANNEL);
-                    c.setChannelName(channel[i]);
-                    c.setChannelSelect(false);
-                    c.setChannelType(0);
-                    c.setChannelId(channel_params[i]);
-                    c.setChannelAdd(false);
-                }
-                c.save();
-            }
-        }
         List<Channel> lists = LitePal.where("isChannelAdd = ?", "1").find(Channel.class);
         if (lists != null && lists.size() > 0) {
             channels.addAll(lists);
@@ -155,6 +130,16 @@ public class ChannelManagerFragment extends BaseFragment {
             channels.addAll(lists1);
         }
         return channels;
+    }
+
+    @Override
+    public void onAddChannel(Channel channel) {
+        EventBus.getDefault().post(channel);
+    }
+
+    @Override
+    public void onRemoveChannel(Channel channel) {
+        EventBus.getDefault().post(channel);
     }
 
     /**
