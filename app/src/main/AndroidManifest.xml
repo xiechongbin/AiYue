@@ -23,6 +23,7 @@
         </activity>
         <activity android:name=".activity.BaseActivity">
         </activity>
+        <activity android:name=".activity.NewsDetailActivity"/>
     </application>
 
 </manifest>

@@ -1,48 +1,56 @@
 package com.chexiaoya.aiyue.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.chexiaoya.aiyue.R;
-import com.chexiaoya.aiyue.adapter.NewsAdapter;
+import com.chexiaoya.aiyue.RecyclerView.RefreshRecyclerView;
+import com.chexiaoya.aiyue.RecyclerView.adapter.CommonRecyclerViewAdapter;
+import com.chexiaoya.aiyue.RecyclerView.adapter.WrapRecyclerAdapter;
+import com.chexiaoya.aiyue.RecyclerView.creater.DefaultRefreshCreator;
+import com.chexiaoya.aiyue.RecyclerView.holder.RecyclerViewHolder;
+import com.chexiaoya.aiyue.RecyclerView.holder.RecyclerViewHolder.HolderImageLoader;
+import com.chexiaoya.aiyue.activity.NewsDetailActivity;
 import com.chexiaoya.aiyue.adapter.divider.RecycleViewDivider;
 import com.chexiaoya.aiyue.bean.Channel;
 import com.chexiaoya.aiyue.bean.NewsDataBean;
 import com.chexiaoya.aiyue.bean.NewsRequestJsonBean;
-import com.chexiaoya.aiyue.interfaces.OnNewsItemClickListener;
-import com.chexiaoya.aiyue.interfaces.RetrofitRequestInterface;
+import com.chexiaoya.aiyue.interfaces.INetWorkCallback;
+import com.chexiaoya.aiyue.interfaces.OnRefreshListener;
 import com.chexiaoya.aiyue.utils.AndroidDeviceUtils;
-import com.chexiaoya.aiyue.utils.Constant;
+import com.chexiaoya.aiyue.utils.GlideUtils;
+import com.chexiaoya.aiyue.utils.RetrofitManager;
 import com.chexiaoya.aiyue.view.dataloading.State;
 import com.chexiaoya.aiyue.view.dataloading.StateLayout;
-import com.orhanobut.logger.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * 详情页面
  * Created by xcb on 2019/1/16.
  */
-public class DetailsFragment extends BaseFragment implements OnNewsItemClickListener {
+public class DetailsFragment extends BaseFragment implements INetWorkCallback<NewsRequestJsonBean>, OnRefreshListener {
 
     @BindView(R.id.rv_news)
-    RecyclerView rvNews;
+    RefreshRecyclerView rvNews;
     Unbinder unbinder;
     @BindView(R.id.state_layout)
     StateLayout state_layout;
-    private NewsAdapter adapter;
     private Channel channel;
+    private List<NewsDataBean> newsDataBeanList = new ArrayList<>();
+    private WrapRecyclerAdapter wrapRecyclerAdapter;
+    private DefaultRefreshCreator defaultRefreshCreator;
+    private int count;
 
     public static DetailsFragment newInstance(Channel channel) {
         Bundle args = new Bundle();
@@ -76,10 +84,57 @@ public class DetailsFragment extends BaseFragment implements OnNewsItemClickList
                 AndroidDeviceUtils.dip2px(activity, 30),
                 getResources().getDrawable(R.drawable.layer_recyclew_divider));
         rvNews.addItemDecoration(divider);
-        adapter = new NewsAdapter(activity, this);
-        rvNews.setAdapter(adapter);
+        CommonRecyclerViewAdapter<NewsDataBean> commonRecyclerViewAdapter = new CommonRecyclerViewAdapter<NewsDataBean>(activity,
+                newsDataBeanList, R.layout.layout_news_item) {
+            @Override
+            public void convert(final RecyclerView.ViewHolder holder, final NewsDataBean dataBean) {
+                if (holder instanceof RecyclerViewHolder) {
+                    final int pos = holder.getAdapterPosition();
+                    RecyclerViewHolder viewHolder = (RecyclerViewHolder) holder;
+                    if (dataBean != null) {
+                        viewHolder.setText(R.id.tv_news_title, dataBean.getTitle())
+                                .setText(R.id.tv_news_date, dataBean.getDate())
+                                .setText(R.id.tv_news_author_name, dataBean.getAuthor_name())
+                                .setImageByUrl(R.id.iv_news_thumb1, new HolderImageLoader(null) {
+                                    @Override
+                                    public void displayImage(Context context, ImageView imageView, String mImagePath) {
+                                        GlideUtils.loadImage(context, dataBean.getThumbnail_pic_s(), imageView);
+                                    }
+                                })
+                                .setImageByUrl(R.id.iv_news_thumb2, new HolderImageLoader(null) {
+                                    @Override
+                                    public void displayImage(Context context, ImageView imageView, String mImagePath) {
+                                        GlideUtils.loadImage(context, dataBean.getThumbnail_pic_s02(), imageView);
+                                    }
+                                }).setImageByUrl(R.id.iv_news_thumb3, new HolderImageLoader(null) {
+                            @Override
+                            public void displayImage(Context context, ImageView imageView, String mImagePath) {
+                                GlideUtils.loadImage(context, dataBean.getThumbnail_pic_s03(), imageView);
+                            }
+                        }).setOnViewClickListener(R.id.iv_news_delete, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                newsDataBeanList.remove(pos);
+                                notifyItemRemoved(pos);
+                                notifyItemRangeChanged(pos, newsDataBeanList.size());
+                            }
+                        }).setOnItemClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                NewsDetailActivity.launch(activity, newsDataBeanList.get(pos));
+                            }
+                        });
+
+                    }
+                }
+            }
+        };
+        wrapRecyclerAdapter = new WrapRecyclerAdapter(commonRecyclerViewAdapter);
+        rvNews.setAdapter(wrapRecyclerAdapter);
+        defaultRefreshCreator = new DefaultRefreshCreator(this);
+        rvNews.addRefreshViewCreator(defaultRefreshCreator);
         state_layout.switchState(State.ING);
-        request(channel);
+        RetrofitManager.getInstance().requestNews(channel, this);
 
     }
 
@@ -99,61 +154,49 @@ public class DetailsFragment extends BaseFragment implements OnNewsItemClickList
         super.onDestroy();
     }
 
-    private void request(Channel channel) {
-        if (channel == null) {
-            return;
-        }
-        Logger.e("channelid == " + channel.getChannelId());
-        //步骤4:创建Retrofit对象
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Constant.URL + "?" + "type=" + channel.getChannelId())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        //步骤5:创建 网络请求接口 的实例
-        RetrofitRequestInterface retrofitRequestInterface = retrofit.create(RetrofitRequestInterface.class);
-        //对 发送请求 进行封装
-        Call<NewsRequestJsonBean> infoBeanCall = retrofitRequestInterface.getNews();
-        //对 发送请求 进行封装
-        infoBeanCall.enqueue(new Callback<NewsRequestJsonBean>() {
-            @Override
-            public void onResponse(Call<NewsRequestJsonBean> call, Response<NewsRequestJsonBean> response) {
-                NewsRequestJsonBean newsRequestJsonBean = response.body();
-                if (newsRequestJsonBean != null) {
-                    if (newsRequestJsonBean.getError_code() == 0) {
-                        if (newsRequestJsonBean.getResult().getData() != null && newsRequestJsonBean.getResult().getData().size() > 0) {
-                            state_layout.setVisibility(View.GONE);
-                            rvNews.setVisibility(View.VISIBLE);
-                            adapter.setData(response.body());
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            state_layout.setVisibility(View.VISIBLE);
-                            state_layout.switchState(State.EMPTY);
-                        }
-                    } else {
-                        state_layout.setVisibility(View.VISIBLE);
-                        state_layout.switchState(State.ERROR);
-                    }
+    @Override
+    public void onResponse(NewsRequestJsonBean newsRequestJsonBean) {
+        count++;
+        if (newsRequestJsonBean != null) {
+            if (newsRequestJsonBean.getResult().getData() != null && newsRequestJsonBean.getResult().getData().size() > 0) {
+                state_layout.setVisibility(View.GONE);
+                rvNews.setVisibility(View.VISIBLE);
+                newsDataBeanList.addAll(newsRequestJsonBean.getResult().getData());
+                wrapRecyclerAdapter.notifyDataSetChanged();
+                if (defaultRefreshCreator != null) {
+                    defaultRefreshCreator.updateHeadView(newsRequestJsonBean.getResult().getData().size());
                 }
-            }
+                if (count > 1) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    rvNews.onStopRefresh();
+                                }
+                            });
+                        }
+                    }, 3000);
+                }
 
-            @Override
-            public void onFailure(Call<NewsRequestJsonBean> call, Throwable t) {
-
+            } else {
+                state_layout.setVisibility(View.VISIBLE);
+                state_layout.switchState(State.EMPTY);
             }
-        });
+        } else {
+            state_layout.setVisibility(View.VISIBLE);
+            state_layout.switchState(State.ERROR);
+        }
     }
 
     @Override
-    public void onNewsItemClick(NewsDataBean newsDataBean) {
-        try {
-            FragmentManager fragmentManager = getChildFragmentManager();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            NewsDetailsFragment detailsFragment = NewsDetailsFragment.newInstance(newsDataBean);
-            transaction.replace(R.id.fl_news_details, detailsFragment, NewsDetailsFragment.class.getSimpleName());
-            transaction.commitAllowingStateLoss();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void onFailure() {
 
+    }
+
+    @Override
+    public void onRefresh() {
+        RetrofitManager.getInstance().requestNews(channel, this);
     }
 }

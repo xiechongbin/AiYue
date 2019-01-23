@@ -9,9 +9,9 @@ import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.chexiaoya.aiyue.RecyclerView.creater.RefreshViewCreator;
-import com.orhanobut.logger.Logger;
 
 /**
  * 可以下拉刷新的RecyclerView
@@ -56,22 +56,22 @@ public class RefreshRecyclerView extends WrapRecyclerView {
     /**
      * 默认状态
      */
-    public int REFRESH_STATUS_NORMAL = 0x0011;
+    public int REFRESH_STATUS_NORMAL = 1;
 
     /**
      * 下拉刷新状态
      */
-    public int REFRESH_STATUS_PULL_DOWN_REFRESH = 0x0022;
+    public int REFRESH_STATUS_PULL_DOWN_REFRESH = 2;
 
     /**
      * 松开刷新状态
      */
-    public int REFRESH_STATUS_LOOSEN_REFRESHING = 0x0033;
+    public int REFRESH_STATUS_LOOSEN_REFRESHING = 3;
 
     /**
      * 正在刷新状态
      */
-    public int REFRESH_STATUS_REFRESHING = 0x0033;
+    public int REFRESH_STATUS_REFRESHING = 4;
 
     /**
      * 刷新回调监听
@@ -121,7 +121,6 @@ public class RefreshRecyclerView extends WrapRecyclerView {
                 mFingerDownY = (int) event.getRawY();
                 break;
             case MotionEvent.ACTION_UP:
-                Logger.d("RefreshRecyclerView>> 抬起+ mCurrentDrag = " + mCurrentDrag);
                 if (mCurrentDrag) {
                     restoreRefreshView();
                 }
@@ -149,12 +148,17 @@ public class RefreshRecyclerView extends WrapRecyclerView {
 
             // 回弹到指定位置
             ValueAnimator animator = ObjectAnimator.ofFloat(currentTopMargin, finalTopMargin).setDuration(distance);
+            final int finalTopMargin1 = finalTopMargin;
             animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
                     float currentTopMargin = (float) animation.getAnimatedValue();
                     setRefreshViewMarginTop((int) currentTopMargin);
+                    if ((int) (currentTopMargin) == finalTopMargin1 && creator != null) {
+                        creator.onPushBack();
+                    }
                 }
+
             });
             animator.start();
             mCurrentDrag = false;
@@ -182,7 +186,6 @@ public class RefreshRecyclerView extends WrapRecyclerView {
                     setRefreshViewMarginTop(marginTop);
                     updateRefreshStatus(marginTop);
                     mCurrentDrag = true;
-                    Logger.d("RefreshRecyclerView>> 移动+ marginTop = " + marginTop + ">>mRefreshViewHeight = " + mRefreshViewHeight);
                     return false;
                 }
                 break;
@@ -239,12 +242,39 @@ public class RefreshRecyclerView extends WrapRecyclerView {
      * 设置刷新View的marginTop
      */
     public void setRefreshViewMarginTop(int marginTop) {
+        recoverRefreshView();
         MarginLayoutParams params = (MarginLayoutParams) mRefreshView.getLayoutParams();
         if (marginTop < -mRefreshViewHeight + 1) {
             marginTop = -mRefreshViewHeight + 1;
         }
         params.topMargin = marginTop;
         mRefreshView.setLayoutParams(params);
+    }
+
+    private void recoverRefreshView() {
+        ViewGroup.LayoutParams layoutParams = mRefreshView.getLayoutParams();
+        if (layoutParams.height == 0) {
+            layoutParams.height = mRefreshViewHeight;
+            mRefreshView.setLayoutParams(layoutParams);
+        }
+    }
+
+    private void hideRefreshView() {
+        if (mRefreshView != null) {
+            final ViewGroup.LayoutParams layoutParams = mRefreshView.getLayoutParams();
+            // 回弹
+            ValueAnimator animator = ObjectAnimator.ofFloat(layoutParams.height, 0).setDuration(mRefreshViewHeight);
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float height = (float) animation.getAnimatedValue();
+                    layoutParams.height = (int) height;
+                    mRefreshView.setLayoutParams(layoutParams);
+                }
+
+            });
+            animator.start();
+        }
     }
 
     /**
@@ -267,6 +297,7 @@ public class RefreshRecyclerView extends WrapRecyclerView {
         if (creator != null) {
             creator.onStopRefresh();
         }
+        hideRefreshView();
     }
 
     public void setOnRefreshListener(OnRefreshListener listener) {

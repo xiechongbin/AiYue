@@ -11,18 +11,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>
 
-    <android.support.v7.widget.RecyclerView
+    <com.chexiaoya.aiyue.RecyclerView.RefreshRecyclerView
         android:id="@+id/rv_news"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone">
 
-    </android.support.v7.widget.RecyclerView>
-
-
-    <FrameLayout
-        android:id="@+id/fl_news_details"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
+    </com.chexiaoya.aiyue.RecyclerView.RefreshRecyclerView>
 </FrameLayout>

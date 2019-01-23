@@ -21,6 +21,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         mRootView = LayoutInflater.from(this).inflate(getLayout(), null, false);
         this.setContentView(mRootView);
         ButterKnife.bind(this);
+        initView(savedInstanceState);
         initData();
     }
 
@@ -51,7 +52,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public abstract int getLayout();
 
+    public abstract void initView(Bundle savedInstanceState);
+
     public abstract void initData();
+
 
     public View getRootView() {
         return mRootView;

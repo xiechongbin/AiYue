@@ -32,5 +32,5 @@ public class Constant {
     /**
      * 接口请求地址s
      */
-    public static final String URL = " http://v.juhe.cn/toutiao/";
+    public static final String URL = "http://v.juhe.cn/toutiao/";
 }

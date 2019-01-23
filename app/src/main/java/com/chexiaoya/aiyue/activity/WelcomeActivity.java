@@ -1,5 +1,6 @@
 package com.chexiaoya.aiyue.activity;
 
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.constraint.ConstraintLayout;
 import android.view.View;
@@ -38,8 +39,12 @@ public class WelcomeActivity extends BaseActivity {
     }
 
     @Override
-    public void initData() {
+    public void initView(Bundle savedInstanceState) {
         initIgnoreIconHeight();
+    }
+
+    @Override
+    public void initData() {
         GlideUtils.loadImage(this, Constant.FIRST_PAGE_PIC_URL, ivAd);
         countDown();
         initGif();

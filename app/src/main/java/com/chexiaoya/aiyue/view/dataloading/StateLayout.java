@@ -8,7 +8,6 @@ import android.widget.FrameLayout;
 import com.chexiaoya.aiyue.view.dataloading.defaultView.DefaultEmptyView;
 import com.chexiaoya.aiyue.view.dataloading.defaultView.DefaultErrorView;
 import com.chexiaoya.aiyue.view.dataloading.defaultView.DefaultIngView;
-import com.orhanobut.logger.Logger;
 
 /**
  * Created by xcb on 2019/1/19.
@@ -33,20 +32,8 @@ public class StateLayout extends FrameLayout {
     public StateLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
-        //initAttributeSet(attrs, defStyleAttr);
         init();
     }
-
-//    private void initAttributeSet(AttributeSet attrs, int defStyleAttr) {
-//        TypedArray typeArray = getContext().obtainStyledAttributes(attrs, R.styleable.StateLayout, defStyleAttr, 0);
-//        int contentLayoutId = typeArray.getResourceId(R.styleable.StateLayout_state_content_layout, -1);
-//        typeArray.recycle();
-//        if (contentLayoutId == -1) {
-//            throw new NullPointerException("StateSwitchLayout use should set content layout id!!!!!!");
-//        }
-//       // contentView = LayoutInflater.from(getContext()).inflate(contentLayoutId, this, false);
-//    }
-
 
     /**
      * 初始化
@@ -136,7 +123,6 @@ public class StateLayout extends FrameLayout {
         if (mState != null && mState == state) {
             return;
         }
-        Logger.e("state>>>" + state);
         switch (state) {
             case ING:
                 // contentView.setVisibility(GONE);

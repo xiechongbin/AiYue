@@ -4,6 +4,7 @@ import com.chexiaoya.aiyue.bean.NewsRequestJsonBean;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 /**
  * 网络请求的接口
@@ -11,6 +12,9 @@ import retrofit2.http.GET;
  */
 public interface RetrofitRequestInterface {
 
-    @GET("index?type=top&key=467ada4c0c147f7439dbf2238affe240")
-    Call<NewsRequestJsonBean> getNews();
+    //http://v.juhe.cn/toutiao/
+    //http://v.juhe.cn/toutiao/index?type=top&key=APPKEY
+    @GET("index")
+    Call<NewsRequestJsonBean> getNews(@Query("type") String type, @Query("key") String key);
+
 }

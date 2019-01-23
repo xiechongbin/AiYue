@@ -7,8 +7,6 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.orhanobut.logger.Logger;
-
 /**
  * 可以添加头部和底部的Adapter
  * Created by xcb on 2019/1/22.
@@ -26,6 +24,7 @@ public class WrapRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     // 列表的Adapter
     private RecyclerView.Adapter mAdapter;
 
+
     public WrapRecyclerAdapter(RecyclerView.Adapter mAdapter) {
         this.mAdapter = mAdapter;
         mHeaderViews = new SparseArray<>();
@@ -38,6 +37,10 @@ public class WrapRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (isHeadViewType(viewType)) {
             View headerView = mHeaderViews.get(viewType);
+//            if (headerView != null) {
+//                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//                headerView.setLayoutParams(layoutParams);
+//            }
             return createHeaderFooterViewHolder(headerView);
         } else if (isFooterViewType(viewType)) {
             View footerView = mFooterViews.get(viewType);
@@ -49,9 +52,7 @@ public class WrapRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Logger.e("mHeaderViews,size = " + mHeaderViews.size());
         if (isHeadViewType(position) || isFooterViewType(position)) {
-            Logger.e("头部");
             return;
         }
         position = position - mHeaderViews.size();
@@ -84,7 +85,6 @@ public class WrapRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
      */
     private boolean isHeadViewType(int viewType) {
         int position = mHeaderViews.indexOfKey(viewType);
-        Logger.d("position = " + position + ">>viewType = " + viewType);
         return position >= 0;
     }
 
@@ -167,7 +167,6 @@ public class WrapRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         mFooterViews.removeAt(index);
         notifyDataSetChanged();
     }
-
 
     /**
      * 解决GridLayoutManager添加头部和底部不占用一行的问题

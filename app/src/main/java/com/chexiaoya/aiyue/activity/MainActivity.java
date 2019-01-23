@@ -1,5 +1,6 @@
 package com.chexiaoya.aiyue.activity;
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -45,9 +46,13 @@ public class MainActivity extends BaseActivity implements OnTabClickListener, Ba
     }
 
     @Override
-    public void initData() {
+    public void initView(Bundle savedInstanceState) {
         initBottomBar();
         addCustomActionBar();
+    }
+
+    @Override
+    public void initData() {
         initFragment();
     }
 
